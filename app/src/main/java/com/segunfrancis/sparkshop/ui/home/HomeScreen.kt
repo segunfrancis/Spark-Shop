@@ -25,9 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,7 +47,13 @@ import com.segunfrancis.sparkshop.utils.toTitleCase
 fun HomeScreen(onCartClick: () -> Unit, onProductClick: (Product) -> Unit) {
     val viewModel = hiltViewModel<HomeViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    HomeContent(uiState = uiState, onCartClick = onCartClick, onProductClick = onProductClick)
+    HomeContent(
+        uiState = uiState,
+        onCartClick = onCartClick,
+        onProductClick = onProductClick,
+        onFilterProduct = {
+            viewModel.filterByCategory(it)
+        })
 }
 
 @Composable
@@ -58,9 +61,9 @@ fun HomeScreen(onCartClick: () -> Unit, onProductClick: (Product) -> Unit) {
 fun HomeContent(
     uiState: HomeUi = HomeUi(),
     onCartClick: () -> Unit = {},
-    onProductClick: (Product) -> Unit = {}
+    onProductClick: (Product) -> Unit = {},
+    onFilterProduct: (String) -> Unit = {}
 ) {
-    var selectedCategory by remember { mutableStateOf("All") }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -77,10 +80,12 @@ fun HomeContent(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(uiState.categories.toList()) { category ->
-                val selected = selectedCategory == category
+                val selected = uiState.selectedCategory.equals(category, ignoreCase = true)
                 FilterChip(
                     selected = selected,
-                    onClick = { selectedCategory = category },
+                    onClick = {
+                        onFilterProduct(category)
+                    },
                     label = {
                         Text(
                             text = category.toTitleCase(),
@@ -103,17 +108,21 @@ fun HomeContent(
             verticalArrangement = Arrangement.spacedBy(14.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            items(uiState.products) { product ->
-                ProductListItem(product, onClick = { onProductClick(product) })
+            items(items = uiState.products, key = { it.id }) { product ->
+                ProductListItem(
+                    product = product,
+                    modifier = Modifier.animateItem(),
+                    onClick = { onProductClick(product) }
+                )
             }
         }
     }
 }
 
 @Composable
-fun ProductListItem(product: Product, onClick: () -> Unit) {
+fun ProductListItem(product: Product, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(74.dp)
             .clip(RoundedCornerShape(12.dp))
@@ -132,7 +141,8 @@ fun ProductListItem(product: Product, onClick: () -> Unit) {
                 contentScale = ContentScale.Crop,
                 error = painterResource(android.R.drawable.ic_menu_report_image),
                 placeholder = painterResource(android.R.drawable.ic_menu_report_image),
-                modifier = Modifier.size(74.dp)
+                modifier = Modifier
+                    .size(74.dp)
                     .background(MaterialTheme.colorScheme.background)
             )
             Spacer(Modifier.width(10.dp))

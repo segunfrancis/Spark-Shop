@@ -27,15 +27,19 @@ class HomeViewModel @Inject constructor(private val repository: SparkShopReposit
         fetchProducts()
     }
 
+    private var products: List<Product> = emptyList()
+
     fun fetchProducts() {
         viewModelScope.launch(exceptionHandler) {
             _uiState.update { it.copy(isLoading = true) }
             repository.getAllProducts()
                 .onFailure { errorResponse -> _uiState.update { it.copy(error = errorResponse.localizedMessage) } }
                 .onSuccess { successResponse ->
+                    products = successResponse
                     _uiState.update {
                         val categories = mutableSetOf("All")
-                        categories.addAll(successResponse.map { product -> product.category }.toMutableSet())
+                        categories.addAll(successResponse.map { product -> product.category }
+                            .toMutableSet())
                         it.copy(
                             products = successResponse,
                             categories = categories
@@ -46,10 +50,22 @@ class HomeViewModel @Inject constructor(private val repository: SparkShopReposit
         }
     }
 
+    fun filterByCategory(category: String) {
+        _uiState.update { state ->
+            state.copy(
+                products = if (category.equals("All", ignoreCase = true)) products else {
+                    products.filter { it.category.equals(category, ignoreCase = true) }
+                },
+                selectedCategory = category
+            )
+        }
+    }
+
     data class HomeUi(
         val isLoading: Boolean = false,
         val products: List<Product> = emptyList(),
         val categories: Set<String> = emptySet(),
-        val error: String? = null
+        val error: String? = null,
+        val selectedCategory: String = "All"
     )
 }

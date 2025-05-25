@@ -2,35 +2,47 @@ package com.segunfrancis.sparkshop.ui.details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.segunfrancis.sparkshop.R
 import com.segunfrancis.sparkshop.data.remote.Product
+import com.segunfrancis.sparkshop.ui.components.PagerIndicator
 import com.segunfrancis.sparkshop.ui.components.SparkShopToolbar
+import com.segunfrancis.sparkshop.ui.theme.SparkShopTheme
 import com.segunfrancis.sparkshop.utils.dummyProduct
 
 @Composable
 fun DetailsScreen(
+    product: Product,
     onBack: () -> Unit = {},
     onAddToCart: () -> Unit = {}
 ) {
-
+    DetailsContent(product = product, onBack = onBack, onAddToCart = onAddToCart)
 }
 
 @Composable
@@ -39,39 +51,106 @@ fun DetailsContent(
     onBack: () -> Unit = {},
     onAddToCart: () -> Unit = {}
 ) {
+    val pagerState = rememberPagerState(pageCount = { product.images.size })
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .verticalScroll(rememberScrollState())
     ) {
         SparkShopToolbar(
             title = "Product Details",
             onNavIconClick = { onBack() },
             navIcon = R.drawable.ic_chevron_left
         )
-        Spacer(Modifier.height(18.dp))
-        AsyncImage(
-            model = product.images.first(),
-            contentDescription = product.title,
-            contentScale = ContentScale.Fit,
+        HorizontalPager(state = pagerState) {
+            AsyncImage(
+                model = product.images[it],
+                contentDescription = product.title,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+                    .background(Color.LightGray)
+            )
+        }
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(180.dp)
-                .background(Color.LightGray)
+                .background(color = MaterialTheme.colorScheme.error)
+        ) {
+            Column {
+                Text(
+                    text = "$${product.price}",
+                    style = MaterialTheme.typography.headlineLarge,
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(start = 16.dp, top = 8.dp),
+                    color = MaterialTheme.colorScheme.onError
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "Only ${product.stock} left",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(start = 16.dp, bottom = 8.dp),
+                    color = MaterialTheme.colorScheme.onError
+                )
+            }
+            Text(
+                text = "${product.discountPercentage}% off",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onError,
+                modifier = Modifier
+                    .padding(end = 16.dp, top = 8.dp)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.End
+            )
+        }
+        Spacer(Modifier.height(16.dp))
+        PagerIndicator(
+            pageCount = product.images.size,
+            currentPage = pagerState.currentPage,
+            modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(16.dp))
         Text(
             product.title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(16.dp))
         Text(
-            product.description,
+            text = "Product Details",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(horizontal = 24.dp)
+        )
+        Text(
+            text = "Description: ${product.description}",
             style = MaterialTheme.typography.bodyMedium,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 24.dp)
+        )
+        Text(
+            text = "Dimension: ${product.dimensions.depth} x ${product.dimensions.height} x ${product.dimensions.width}",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(horizontal = 24.dp)
+        )
+        Spacer(Modifier.height(16.dp))
+        Text(
+            text = "Delivery and Returns info",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(horizontal = 24.dp)
+        )
+        Text(
+            text = "Shipping Information: ${product.shippingInformation}",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(horizontal = 24.dp)
+        )
+        Text(
+            text = "Return Policy: ${product.returnPolicy}",
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         Spacer(Modifier.height(8.dp))
@@ -92,7 +171,12 @@ fun DetailsContent(
                 .height(50.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Add to Cart", style = MaterialTheme.typography.labelLarge)
+            Text("Add to Cart")
+            Spacer(Modifier.width(24.dp))
+            Icon(
+                painter = painterResource(R.drawable.ic_add_shopping_cart),
+                contentDescription = null
+            )
         }
     }
 }
@@ -100,5 +184,7 @@ fun DetailsContent(
 @Preview
 @Composable
 fun DetailsContentPreview() {
-    DetailsContent(product = dummyProduct)
+    SparkShopTheme {
+        DetailsContent(product = dummyProduct)
+    }
 }

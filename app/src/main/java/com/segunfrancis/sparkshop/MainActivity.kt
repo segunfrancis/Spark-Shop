@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable<NavDestinations.Details>(typeMap = mapOf(typeOf<Product>() to CustomNavType.productType)) {
                             val argument = it.toRoute<NavDestinations.Details>()
-                            DetailsScreen(onBack = { navController.navigateUp() })
+                            DetailsScreen(product = argument.product, onBack = { navController.navigateUp() })
                         }
                         composable<NavDestinations.Cart> {
                             CartScreen(onBack = { navController.navigateUp() })
