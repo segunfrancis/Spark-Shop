@@ -54,7 +54,7 @@ fun SparkShopToolbar(
         },
         actions = {
             actionIcon?.let {
-                Box {
+                Box(modifier = Modifier.padding(end = 8.dp)) {
                     Image(
                         painter = painterResource(actionIcon),
                         contentDescription = null,
@@ -69,17 +69,19 @@ fun SparkShopToolbar(
                             }
                     )
                     cartItemCount?.let {
-                        Text(
-                            text = cartItemCount.toString(),
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .clip(CircleShape)
-                                .background(color = MaterialTheme.colorScheme.error)
-                                .padding(4.dp)
-                                .align(Alignment.TopEnd),
-                            color = MaterialTheme.colorScheme.onError
-                        )
+                        if (it > 0) {
+                            Text(
+                                text = cartItemCount.toString(),
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier
+                                    .wrapContentSize()
+                                    .clip(CircleShape)
+                                    .background(color = MaterialTheme.colorScheme.error)
+                                    .padding(4.dp)
+                                    .align(Alignment.TopEnd),
+                                color = MaterialTheme.colorScheme.onError
+                            )
+                        }
                     }
                 }
             }

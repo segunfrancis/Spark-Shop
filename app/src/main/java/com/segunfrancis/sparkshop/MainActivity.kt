@@ -1,6 +1,7 @@
 package com.segunfrancis.sparkshop
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -9,12 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.segunfrancis.sparkshop.data.remote.Product
@@ -36,7 +35,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             SparkShopTheme {
-                val currentBackStack by navController.currentBackStackEntryAsState()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
                         navController = navController,
@@ -47,18 +45,27 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(
                                 onCartClick = { navController.navigate(NavDestinations.Cart) },
                                 onProductClick = { product ->
+                                    Log.d("onCreate", "HomeProduct: $product")
                                     navController.navigate(NavDestinations.Details(product))
                                 })
                         }
                         composable<NavDestinations.Details>(typeMap = mapOf(typeOf<Product>() to CustomNavType.productType)) {
                             val argument = it.toRoute<NavDestinations.Details>()
-                            DetailsScreen(product = argument.product, onBack = { navController.navigateUp() })
+                            Log.d("onCreate", "DetailsProduct: ${argument.product}")
+                            DetailsScreen(
+                                product = argument.product,
+                                onBack = { navController.navigateUp() }
+                            )
                         }
                         composable<NavDestinations.Cart> {
-                            CartScreen(onBack = { navController.navigateUp() })
+                            CartScreen(onBack = { navController.navigateUp() }, onCheckout = {
+                                navController.navigate(
+                                    NavDestinations.Checkout
+                                )
+                            })
                         }
                         composable<NavDestinations.Checkout> {
-                            CheckoutScreen(total = 2, onBack = { navController.navigateUp() })
+                            CheckoutScreen(onBack = { navController.navigateUp() })
                         }
                     }
                 }

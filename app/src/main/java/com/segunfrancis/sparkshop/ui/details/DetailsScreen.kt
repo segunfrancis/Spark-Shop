@@ -1,5 +1,6 @@
 package com.segunfrancis.sparkshop.ui.details
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,14 +21,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.segunfrancis.sparkshop.R
 import com.segunfrancis.sparkshop.data.remote.Product
@@ -35,14 +38,34 @@ import com.segunfrancis.sparkshop.ui.components.PagerIndicator
 import com.segunfrancis.sparkshop.ui.components.SparkShopToolbar
 import com.segunfrancis.sparkshop.ui.theme.SparkShopTheme
 import com.segunfrancis.sparkshop.utils.dummyProduct
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun DetailsScreen(
     product: Product,
-    onBack: () -> Unit = {},
-    onAddToCart: () -> Unit = {}
+    onBack: () -> Unit = {}
 ) {
-    DetailsContent(product = product, onBack = onBack, onAddToCart = onAddToCart)
+    val context = LocalContext.current
+    val viewModel = hiltViewModel<DetailsViewModel, DetailsViewModel.Factory>(
+        creationCallback = { factory -> factory.create(product) }
+    )
+    DetailsContent(product = product, onBack = onBack, onAddToCart = {
+        viewModel.addToCart()
+    })
+    LaunchedEffect(Unit) {
+        viewModel.action.collect {
+            when (it) {
+                DetailsViewModel.DetailsAction.AddedToCart -> {
+                    Toast.makeText(
+                        context,
+                        "Product was added successfully!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -55,7 +78,7 @@ fun DetailsContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
     ) {
         SparkShopToolbar(
@@ -71,7 +94,7 @@ fun DetailsContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)
-                    .background(Color.LightGray)
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
             )
         }
         Row(
@@ -81,7 +104,9 @@ fun DetailsContent(
         ) {
             Column {
                 Text(
-                    text = "$${product.price}",
+                    text = "$${
+                        NumberFormat.getInstance(Locale.getDefault()).format(product.price)
+                    }",
                     style = MaterialTheme.typography.headlineLarge,
                     modifier = Modifier
                         .wrapContentWidth()
@@ -156,7 +181,7 @@ fun DetailsContent(
         Spacer(Modifier.height(8.dp))
         Text(
             if (product.stock > 0) "In Stock" else "Out of Stock",
-            color = if (product.stock > 0) Color(0xFF1BBF4B) else Color.Red,
+            color = if (product.stock > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(horizontal = 24.dp)

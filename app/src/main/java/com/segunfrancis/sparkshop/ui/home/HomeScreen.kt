@@ -42,13 +42,17 @@ import com.segunfrancis.sparkshop.data.remote.Product
 import com.segunfrancis.sparkshop.ui.components.SparkShopToolbar
 import com.segunfrancis.sparkshop.ui.home.HomeViewModel.HomeUi
 import com.segunfrancis.sparkshop.utils.toTitleCase
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun HomeScreen(onCartClick: () -> Unit, onProductClick: (Product) -> Unit) {
     val viewModel = hiltViewModel<HomeViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val cartItemCount by viewModel.cartItemCount.collectAsStateWithLifecycle()
     HomeContent(
         uiState = uiState,
+        cartItemCount = cartItemCount,
         onCartClick = onCartClick,
         onProductClick = onProductClick,
         onFilterProduct = {
@@ -60,6 +64,7 @@ fun HomeScreen(onCartClick: () -> Unit, onProductClick: (Product) -> Unit) {
 @Preview
 fun HomeContent(
     uiState: HomeUi = HomeUi(),
+    cartItemCount: Int = 1,
     onCartClick: () -> Unit = {},
     onProductClick: (Product) -> Unit = {},
     onFilterProduct: (String) -> Unit = {}
@@ -72,7 +77,8 @@ fun HomeContent(
         SparkShopToolbar(
             title = "Spark Shop",
             actionIcon = R.drawable.ic_shopping_cart,
-            onActionIconClick = { onCartClick() }
+            onActionIconClick = { onCartClick() },
+            cartItemCount = cartItemCount
         )
         Spacer(Modifier.height(24.dp))
         LazyRow(
@@ -154,7 +160,10 @@ fun ProductListItem(product: Product, modifier: Modifier = Modifier, onClick: ()
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text("$${product.price}", style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = "$${NumberFormat.getInstance(Locale.getDefault()).format(product.price)}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
     }

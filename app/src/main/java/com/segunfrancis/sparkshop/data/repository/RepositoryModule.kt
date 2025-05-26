@@ -12,5 +12,13 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindFoodRepository(sparkShopRepositoryImpl: SparkShopRepositoryImpl): SparkShopRepository
+    abstract fun bindRepository(sparkShopRepositoryImpl: SparkShopRepositoryImpl): SparkShopRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindProductRepository(productRepositoryImpl: ProductRepositoryImpl): ProductRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCartRepository(cartRepositoryImpl: CartRepositoryImpl): CartRepository
 }

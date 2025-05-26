@@ -1,44 +1,74 @@
 package com.segunfrancis.sparkshop.ui.cart
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.*
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.segunfrancis.sparkshop.R
-import com.segunfrancis.sparkshop.data.remote.Product
+import com.segunfrancis.sparkshop.data.local.CartItemEntity
 import com.segunfrancis.sparkshop.ui.components.SparkShopToolbar
-
-data class CartItem(val product: Product, val quantity: Int)
+import com.segunfrancis.sparkshop.ui.theme.SparkShopTheme
 
 @Composable
 fun CartScreen(onBack: () -> Unit = {}, onCheckout: () -> Unit = {}) {
 
+    val viewModel = hiltViewModel<CartViewModel>()
+    val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
+
+    CartContent(
+        cartItems = cartItems,
+        total = cartItems.sumOf { it.price * it.quantity },
+        onBack = onBack,
+        onQuantityDecrease = { viewModel.decreaseQuantity(it) },
+        onQuantityIncrease = { viewModel.increaseQuantity(it) },
+        onCheckout = onCheckout
+    )
 }
 
 @Composable
 fun CartContent(
-    cartItems: List<CartItem>,
+    cartItems: List<CartItemEntity>,
+    total: Double,
     onBack: () -> Unit = {},
-    onQuantityChange: (CartItem, Int) -> Unit = { _, _ -> },
+    onQuantityIncrease: (Int) -> Unit,
+    onQuantityDecrease: (Int) -> Unit,
     onCheckout: () -> Unit = {}
 ) {
-    val total = cartItems.sumOf { it.product.price * it.quantity }
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         SparkShopToolbar(
             title = "Cart",
@@ -51,7 +81,11 @@ fun CartContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(cartItems) { item ->
-                CartListItem(item, onQuantityChange)
+                CartListItem(
+                    item = item,
+                    onQuantityIncrease = onQuantityIncrease,
+                    onQuantityDecrease = onQuantityDecrease
+                )
             }
         }
         HorizontalDivider(Modifier.padding(vertical = 10.dp))
@@ -60,13 +94,13 @@ fun CartContent(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                "Total",
+                text = "Total",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 24.dp)
             )
             Text(
-                "$${total}",
+                text = "$${total}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(end = 24.dp)
@@ -79,7 +113,8 @@ fun CartContent(
                 .padding(24.dp)
                 .fillMaxWidth()
                 .height(50.dp),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
+            enabled = total > 0.0
         ) {
             Text("Checkout", style = MaterialTheme.typography.labelLarge)
         }
@@ -87,7 +122,11 @@ fun CartContent(
 }
 
 @Composable
-fun CartListItem(item: CartItem, onQuantityChange: (CartItem, Int) -> Unit) {
+fun CartListItem(
+    item: CartItemEntity,
+    onQuantityIncrease: (Int) -> Unit,
+    onQuantityDecrease: (Int) -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -95,31 +134,31 @@ fun CartListItem(item: CartItem, onQuantityChange: (CartItem, Int) -> Unit) {
             .padding(horizontal = 24.dp)
     ) {
         AsyncImage(
-            model = item.product.images.first(),
-            contentDescription = item.product.title,
+            model = item.thumbnail,
+            contentDescription = item.title,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(54.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(Color.LightGray)
+                .background(MaterialTheme.colorScheme.surfaceContainer)
         )
         Spacer(Modifier.width(10.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                item.product.title,
+                item.title,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold
             )
-            Text("$${item.product.price}", style = MaterialTheme.typography.bodyMedium)
+            Text("$${item.price}", style = MaterialTheme.typography.bodyMedium)
         }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
-                .background(Color(0xFFF4F4F4))
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.4F))
         ) {
             IconButton(
-                onClick = { onQuantityChange(item, item.quantity - 1) },
+                onClick = { onQuantityDecrease(item.cartItemId) },
                 enabled = item.quantity > 1,
                 modifier = Modifier.size(32.dp)
             ) {
@@ -134,11 +173,24 @@ fun CartListItem(item: CartItem, onQuantityChange: (CartItem, Int) -> Unit) {
                 modifier = Modifier.padding(horizontal = 4.dp)
             )
             IconButton(
-                onClick = { onQuantityChange(item, item.quantity + 1) },
+                onClick = { onQuantityIncrease(item.cartItemId) },
                 modifier = Modifier.size(32.dp)
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Increase")
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun CartContentPreview() {
+    SparkShopTheme {
+        CartContent(
+            cartItems = listOf(),
+            total = 0.0,
+            onQuantityDecrease = {},
+            onQuantityIncrease = {}
+        )
     }
 }

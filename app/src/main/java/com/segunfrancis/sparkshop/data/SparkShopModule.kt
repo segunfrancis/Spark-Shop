@@ -1,10 +1,16 @@
 package com.segunfrancis.sparkshop.data
 
+import android.content.Context
+import com.segunfrancis.sparkshop.data.local.CartDao
+import com.segunfrancis.sparkshop.data.local.Converters
+import com.segunfrancis.sparkshop.data.local.ProductDao
+import com.segunfrancis.sparkshop.data.local.SparkShopDatabase
 import com.segunfrancis.sparkshop.data.remote.SparkShopApi
-import com.segunfrancis.sparkshop.utils.BASE_URL
+import com.segunfrancis.sparkshop.utils.BASE_URL_2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -50,7 +56,7 @@ object SparkShopModule {
     @Singleton
     fun provideRetrofitClient(json: Json, client: OkHttpClient): SparkShopApi {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BASE_URL_2)
             .client(client)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
@@ -61,5 +67,29 @@ object SparkShopModule {
     @Singleton
     fun provideDispatcher(): CoroutineDispatcher {
         return Dispatchers.IO
+    }
+
+    @Provides
+    @Singleton
+    fun provideConverters(json: Json): Converters {
+        return Converters(json)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProductDao(
+        @ApplicationContext context: Context,
+        converters: Converters
+    ): ProductDao {
+        return SparkShopDatabase.getDatabase(context, converters).productDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCartDao(
+        @ApplicationContext context: Context,
+        converters: Converters
+    ): CartDao {
+        return SparkShopDatabase.getDatabase(context, converters).cartDao()
     }
 }
