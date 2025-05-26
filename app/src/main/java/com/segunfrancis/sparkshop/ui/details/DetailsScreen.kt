@@ -60,7 +60,7 @@ fun DetailsScreen(
                     Toast.makeText(
                         context,
                         "Product was added successfully!",
-                        Toast.LENGTH_LONG
+                        Toast.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -74,7 +74,7 @@ fun DetailsContent(
     onBack: () -> Unit = {},
     onAddToCart: () -> Unit = {}
 ) {
-    val pagerState = rememberPagerState(pageCount = { product.images.size })
+    val pagerState = rememberPagerState(pageCount = { 1 })
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -88,7 +88,7 @@ fun DetailsContent(
         )
         HorizontalPager(state = pagerState) {
             AsyncImage(
-                model = product.images[it],
+                model = product.image,
                 contentDescription = product.title,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
@@ -124,7 +124,7 @@ fun DetailsContent(
                 )
             }
             Text(
-                text = "${product.discountPercentage}% off",
+                text = "${product.percentageOff}% off",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onError,
                 modifier = Modifier
@@ -135,7 +135,7 @@ fun DetailsContent(
         }
         Spacer(Modifier.height(16.dp))
         PagerIndicator(
-            pageCount = product.images.size,
+            pageCount = 1,
             currentPage = pagerState.currentPage,
             modifier = Modifier.fillMaxWidth()
         )
@@ -158,7 +158,7 @@ fun DetailsContent(
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         Text(
-            text = "Dimension: ${product.dimensions.depth} x ${product.dimensions.height} x ${product.dimensions.width}",
+            text = "Dimension: ${product.dimensions.width} x ${product.dimensions.height} x ${product.dimensions.length}",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(horizontal = 24.dp)
         )

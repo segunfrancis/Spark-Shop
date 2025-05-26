@@ -1,7 +1,5 @@
 package com.segunfrancis.sparkshop.ui.details
 
-import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.segunfrancis.sparkshop.data.local.CartItemEntity
@@ -16,7 +14,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel(assistedFactory = DetailsViewModel.Factory::class)
 class DetailsViewModel @AssistedInject constructor(
@@ -36,7 +33,7 @@ class DetailsViewModel @AssistedInject constructor(
                         cartItemId = id,
                         price = price,
                         title = title,
-                        thumbnail = thumbnail,
+                        image = image,
                         stock = stock,
                         quantity = 1
                     )

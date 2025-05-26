@@ -5,5 +5,5 @@ import retrofit2.http.GET
 interface SparkShopApi {
 
     @GET("products")
-    suspend fun getAllProducts(): ProductsBaseResponse
+    suspend fun getAllProducts(): List<Product>
 }

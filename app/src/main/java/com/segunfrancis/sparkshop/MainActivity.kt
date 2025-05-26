@@ -65,7 +65,15 @@ class MainActivity : ComponentActivity() {
                             })
                         }
                         composable<NavDestinations.Checkout> {
-                            CheckoutScreen(onBack = { navController.navigateUp() })
+                            CheckoutScreen(
+                                onBack = { navController.navigateUp() },
+                                onCheckout = {
+                                    navController.navigate(NavDestinations.Home) {
+                                        popUpTo(NavDestinations.Home::class) {
+                                            inclusive = true
+                                        }
+                                    }
+                                })
                         }
                     }
                 }

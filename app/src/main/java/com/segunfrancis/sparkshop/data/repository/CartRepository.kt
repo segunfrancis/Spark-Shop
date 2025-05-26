@@ -8,7 +8,10 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class CartRepositoryImpl @Inject constructor(private val dao: CartDao, private val dispatcher: CoroutineDispatcher) :
+class CartRepositoryImpl @Inject constructor(
+    private val dao: CartDao,
+    private val dispatcher: CoroutineDispatcher
+) :
     CartRepository {
     override suspend fun addToCartOrIncrease(cartItem: CartItemEntity) {
         withContext(dispatcher) {
@@ -47,6 +50,12 @@ class CartRepositoryImpl @Inject constructor(private val dao: CartDao, private v
             }
         }
     }
+
+    override suspend fun clearCart() {
+        withContext(dispatcher) {
+            dao.clearCart()
+        }
+    }
 }
 
 interface CartRepository {
@@ -54,4 +63,5 @@ interface CartRepository {
     fun getAllCartItems(): Flow<List<CartItemEntity>>
     suspend fun decrementQuantity(cartItemId: Int)
     suspend fun incrementQuantity(cartItemId: Int)
+    suspend fun clearCart()
 }

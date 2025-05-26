@@ -1,5 +1,6 @@
 package com.segunfrancis.sparkshop.ui.home
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,14 +22,17 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,17 +51,32 @@ import java.util.Locale
 
 @Composable
 fun HomeScreen(onCartClick: () -> Unit, onProductClick: (Product) -> Unit) {
+    val context = LocalContext.current
     val viewModel = hiltViewModel<HomeViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val cartItemCount by viewModel.cartItemCount.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     HomeContent(
         uiState = uiState,
         cartItemCount = cartItemCount,
         onCartClick = onCartClick,
         onProductClick = onProductClick,
+        isLoading = isLoading,
         onFilterProduct = {
             viewModel.filterByCategory(it)
         })
+    LaunchedEffect(Unit) {
+        viewModel.action.collect {
+            when (it) {
+                is HomeViewModel.HomeAction.Error -> Toast.makeText(
+                    context,
+                    it.errorMessage,
+                    Toast.LENGTH_LONG
+                )
+                    .show()
+            }
+        }
+    }
 }
 
 @Composable
@@ -66,6 +85,7 @@ fun HomeContent(
     uiState: HomeUi = HomeUi(),
     cartItemCount: Int = 1,
     onCartClick: () -> Unit = {},
+    isLoading: Boolean = true,
     onProductClick: (Product) -> Unit = {},
     onFilterProduct: (String) -> Unit = {}
 ) {
@@ -80,6 +100,9 @@ fun HomeContent(
             onActionIconClick = { onCartClick() },
             cartItemCount = cartItemCount
         )
+        if (isLoading) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
         Spacer(Modifier.height(24.dp))
         LazyRow(
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 4.dp),
@@ -142,7 +165,7 @@ fun ProductListItem(product: Product, modifier: Modifier = Modifier, onClick: ()
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
-                model = product.thumbnail,
+                model = product.image,
                 contentDescription = product.title,
                 contentScale = ContentScale.Crop,
                 error = painterResource(android.R.drawable.ic_menu_report_image),
@@ -161,7 +184,9 @@ fun ProductListItem(product: Product, modifier: Modifier = Modifier, onClick: ()
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "$${NumberFormat.getInstance(Locale.getDefault()).format(product.price)}",
+                    text = "$${
+                        NumberFormat.getInstance(Locale.getDefault()).format(product.price)
+                    }",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

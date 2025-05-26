@@ -1,63 +1,64 @@
 package com.segunfrancis.sparkshop.utils
 
 import com.segunfrancis.sparkshop.data.remote.Dimensions
-import com.segunfrancis.sparkshop.data.remote.Meta
 import com.segunfrancis.sparkshop.data.remote.Product
-import com.segunfrancis.sparkshop.data.remote.Review
+import com.segunfrancis.sparkshop.data.remote.Rating
+import java.util.Locale
+import kotlin.random.Random
 
-val dummyDimensions = Dimensions(
-    depth = 12.5,
-    height = 8.2,
-    width = 15.0
+val dummyRating = Rating(
+    rate = 12.5,
+    count = 8
 )
 
-val dummyMeta = Meta(
-    barcode = "123456789012",
-    createdAt = "2023-05-15T10:30:00Z",
-    qrCode = "QR123456",
-    updatedAt = "2023-05-20T14:45:00Z"
+val dummyDimension = Dimensions(
+    width = 12.5,
+    height = 11.0,
+    length = 2.8
 )
 
-val dummyReviews = listOf(
-    Review(
-        comment = "Great product! Works perfectly.",
-        date = "2023-06-01",
-        rating = 5,
-        reviewerEmail = "user1@example.com",
-        reviewerName = "John Doe"
-    ),
-    Review(
-        comment = "Average quality",
-        date = "2023-06-10",
-        rating = 3,
-        reviewerName = "Jane Smith"
-    )
+val shippingInfoList = listOf(
+    "Free shipping on orders over $1,000",
+    "Standard delivery within 3-5 business days",
+    "Express delivery available within 24 hours",
+    "Same-day delivery for orders placed before 12 PM",
+    "Tracking number provided once your order ships",
+    "Nationwide shipping available",
+    "Shipping to remote areas may take 7–10 business days",
+    "Pickup station option available at checkout",
+    "Free shipping for first-time customers",
+    "Orders are dispatched within 1-2 business days"
+)
+
+val returnPolicyList = listOf(
+    "Items can be returned within 7 days of delivery",
+    "Return only accepted if item is in original packaging",
+    "Return shipping costs are the customer’s responsibility",
+    "Refunds processed within 5–10 business days after approval",
+    "No returns accepted for clearance or final sale items",
+    "Items damaged upon arrival are eligible for free return",
+    "Contact support within 48 hours to initiate a return",
+    "Exchanges available for size or color issues",
+    "Return not accepted for hygiene-related products",
+    "Proof of purchase required for all returns"
 )
 
 val dummyProduct = Product(
-    availabilityStatus = "In Stock",
-    brand = "TechMaster",
     category = "Electronics",
     description = "High-performance gadget with advanced features",
-    dimensions = dummyDimensions,
-    discountPercentage = 15.0,
+    rating = dummyRating,
     id = 101,
-    images = listOf(
-        "https://example.com/product1.jpg",
-        "https://example.com/product2.jpg"
-    ),
-    meta = dummyMeta,
-    minimumOrderQuantity = 1,
+    image = "https://example.com/product2.jpg",
     price = 299.99,
-    rating = 4.5,
-    returnPolicy = "30-day return policy",
-    reviews = dummyReviews,
-    shippingInformation = "Free shipping on orders over $50",
-    sku = "TM-101-ELEC",
     stock = 50,
-    tags = listOf("gadget", "wireless", "2023"),
-    thumbnail = "https://example.com/product-thumb.jpg",
     title = "Premium Smart Device",
-    warrantyInformation = "2-year manufacturer warranty",
-    weight = 350
+    shippingInformation = shippingInfoList.first(),
+    returnPolicy = returnPolicyList.first(),
+    percentageOff = 23,
+    dimensions = dummyDimension
 )
+
+fun generateDimension(): Double {
+    val random = Random.nextDouble(1.0, 15.0)
+    return String.format(Locale.getDefault(), "%.1f", random).toDouble()
+}

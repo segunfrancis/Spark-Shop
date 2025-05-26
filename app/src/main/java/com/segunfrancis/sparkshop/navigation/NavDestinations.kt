@@ -3,6 +3,7 @@ package com.segunfrancis.sparkshop.navigation
 import com.segunfrancis.sparkshop.data.remote.Product
 import kotlinx.serialization.Serializable
 
+@Serializable
 sealed class NavDestinations {
     @Serializable
     data object Home : NavDestinations()

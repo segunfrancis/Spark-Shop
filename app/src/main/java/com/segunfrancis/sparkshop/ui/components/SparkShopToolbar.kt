@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,9 +62,7 @@ fun SparkShopToolbar(
                         modifier = Modifier
                             .padding(8.dp)
                             .size(36.dp)
-                            .clip(
-                                CircleShape
-                            )
+                            .clip(CircleShape)
                             .clickable {
                                 onActionIconClick()
                             }
@@ -72,12 +71,10 @@ fun SparkShopToolbar(
                         if (it > 0) {
                             Text(
                                 text = cartItemCount.toString(),
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                                 modifier = Modifier
-                                    .wrapContentSize()
-                                    .clip(CircleShape)
-                                    .background(color = MaterialTheme.colorScheme.error)
-                                    .padding(4.dp)
+                                    .background(color = MaterialTheme.colorScheme.error, shape = CircleShape)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
                                     .align(Alignment.TopEnd),
                                 color = MaterialTheme.colorScheme.onError
                             )

@@ -4,19 +4,17 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
 
 @Database(
     entities = [
         ProductEntity::class,
+        RatingEntity::class,
         DimensionsEntity::class,
-        MetaEntity::class,
-        ReviewEntity::class,
         CartItemEntity::class
     ],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
-@TypeConverters(Converters::class)
 abstract class SparkShopDatabase : RoomDatabase() {
     abstract fun productDao(): ProductDao
     abstract fun cartDao(): CartDao
@@ -25,14 +23,13 @@ abstract class SparkShopDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: SparkShopDatabase? = null
 
-        fun getDatabase(context: Context, converters: Converters): SparkShopDatabase {
+        fun getDatabase(context: Context): SparkShopDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     SparkShopDatabase::class.java,
                     "spark_shop_ecommerce_database"
                 )
-                    .addTypeConverter(converters)
                     .fallbackToDestructiveMigration(true)
                     .build()
                     .also { INSTANCE = it }
