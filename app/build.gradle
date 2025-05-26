@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
     id("kotlin-parcelize")
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -14,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId "com.segunfrancis.sparkshop"
-        minSdk 21
+        minSdk 23
         targetSdk 35
         versionCode 1
         versionName "1.0"
@@ -61,6 +62,7 @@ dependencies {
     implementation libs.hilt.android
     implementation libs.hilt.navigation
     implementation libs.room.runtime
+    implementation libs.firebase.auth
     ksp libs.hilt.compiler
     ksp libs.room.compiler
     testImplementation libs.junit

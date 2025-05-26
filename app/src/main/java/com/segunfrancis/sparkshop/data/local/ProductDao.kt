@@ -13,25 +13,20 @@ interface ProductDao {
     suspend fun insertProduct(product: ProductEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRating(rating: RatingEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDimensions(dimensions: DimensionsEntity)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMeta(meta: MetaEntity)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertReview(review: ReviewEntity)
 
     @Transaction
     suspend fun insertProductWithRelations(
         product: ProductEntity,
-        dimensions: DimensionsEntity,
-        meta: MetaEntity,
-        reviews: List<ReviewEntity>
+        rating: RatingEntity,
+        dimensions: DimensionsEntity
     ) {
         insertProduct(product)
+        insertRating(rating)
         insertDimensions(dimensions)
-        insertMeta(meta)
-        reviews.forEach { insertReview(it) }
     }
 
     @Transaction

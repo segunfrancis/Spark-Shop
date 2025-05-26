@@ -34,16 +34,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.segunfrancis.sparkshop.R
 import com.segunfrancis.sparkshop.ui.components.SparkShopToolbar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CheckoutScreen(onBack: () -> Unit) {
+fun CheckoutScreen(onBack: () -> Unit, onCheckout: () -> Unit) {
+    val viewModel = hiltViewModel<CheckoutViewModel>()
+    val total by viewModel.total.collectAsStateWithLifecycle()
+
     var showAlertDialog by remember { mutableStateOf(false) }
-    CheckoutContent(total = 12, onBack = onBack, onPlaceOrder = { showAlertDialog = true })
+    CheckoutContent(total = total, onBack = onBack, onPlaceOrder = { showAlertDialog = true })
     if (showAlertDialog) {
-        BasicAlertDialog(onDismissRequest = { showAlertDialog = false }) {
+        BasicAlertDialog(
+            onDismissRequest = { showAlertDialog = false },
+            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+        ) {
             Surface(
                 modifier = Modifier
                     .wrapContentWidth()
@@ -57,7 +66,11 @@ fun CheckoutScreen(onBack: () -> Unit) {
                     Text(text = "Your order has been placed successfully.\nYou will be contacted when it is ready for delivery")
                     Spacer(Modifier.height(24.dp))
                     TextButton(
-                        onClick = { showAlertDialog = false },
+                        onClick = {
+                            viewModel.clearCart()
+                            showAlertDialog = false
+                            onCheckout()
+                        },
                         modifier = Modifier.align(Alignment.End)
                     ) {
                         Text(text = "Okay")
@@ -71,7 +84,7 @@ fun CheckoutScreen(onBack: () -> Unit) {
 @Preview
 @Composable
 fun CheckoutContent(
-    total: Int = 12,
+    total: Double = 12.0,
     onBack: () -> Unit = {},
     onPlaceOrder: () -> Unit = {}
 ) {
@@ -125,7 +138,7 @@ fun CheckoutContent(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("Total", style = MaterialTheme.typography.bodyLarge)
-            Text("$${"%.2f".format(total.toDouble())}", style = MaterialTheme.typography.bodyLarge)
+            Text("$${"%.2f".format(total)}", style = MaterialTheme.typography.bodyLarge)
         }
         Spacer(Modifier.weight(1f))
         Button(

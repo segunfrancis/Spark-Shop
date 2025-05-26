@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.segunfrancis.sparkshop" />
+                  <option name="mobileSdkAppId" value="1:864081632531:android:9d46746191ca6d6ab58ee6" />
+                  <option name="projectId" value="citizen-march" />
+                  <option name="projectNumber" value="864081632531" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

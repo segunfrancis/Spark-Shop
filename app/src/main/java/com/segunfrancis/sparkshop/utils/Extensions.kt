@@ -18,3 +18,22 @@ fun String?.toTitleCase(locale: Locale = Locale.getDefault()): String {
         }
         .replace(Regex("\\s+"), " ")
 }
+
+fun formatEmailUsername(email: String?): String {
+    return when {
+        email.isNullOrEmpty() -> ""
+        else -> {
+            val username = email.substringBefore('@')
+                .replace(".", " ")
+                .lowercase()
+                .split(" ")
+                .joinToString(" ") { word ->
+                    word.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase()
+                        else it.toString()
+                    }
+                }
+            username
+        }
+    }
+}

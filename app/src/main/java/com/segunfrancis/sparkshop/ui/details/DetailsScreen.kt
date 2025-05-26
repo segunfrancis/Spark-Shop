@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.W700
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -60,7 +61,7 @@ fun DetailsScreen(
                     Toast.makeText(
                         context,
                         "Product was added successfully!",
-                        Toast.LENGTH_LONG
+                        Toast.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -74,135 +75,138 @@ fun DetailsContent(
     onBack: () -> Unit = {},
     onAddToCart: () -> Unit = {}
 ) {
-    val pagerState = rememberPagerState(pageCount = { product.images.size })
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
-    ) {
+    val pagerState = rememberPagerState(pageCount = { 1 })
+    Column {
         SparkShopToolbar(
             title = "Product Details",
             onNavIconClick = { onBack() },
             navIcon = R.drawable.ic_chevron_left
         )
-        HorizontalPager(state = pagerState) {
-            AsyncImage(
-                model = product.images[it],
-                contentDescription = product.title,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(220.dp)
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
-            )
-        }
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.error)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState())
         ) {
-            Column {
-                Text(
-                    text = "$${
-                        NumberFormat.getInstance(Locale.getDefault()).format(product.price)
-                    }",
-                    style = MaterialTheme.typography.headlineLarge,
+            HorizontalPager(state = pagerState) {
+                AsyncImage(
+                    model = product.image,
+                    contentDescription = product.title,
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .wrapContentWidth()
-                        .padding(start = 16.dp, top = 8.dp),
-                    color = MaterialTheme.colorScheme.onError
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = "Only ${product.stock} left",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .padding(start = 16.dp, bottom = 8.dp),
-                    color = MaterialTheme.colorScheme.onError
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
                 )
             }
-            Text(
-                text = "${product.discountPercentage}% off",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onError,
+            Row(
                 modifier = Modifier
-                    .padding(end = 16.dp, top = 8.dp)
-                    .fillMaxWidth(),
-                textAlign = TextAlign.End
+                    .fillMaxWidth()
+                    .background(color = MaterialTheme.colorScheme.error)
+            ) {
+                Column {
+                    Text(
+                        text = "$${
+                            NumberFormat.getInstance(Locale.getDefault()).format(product.price)
+                        }",
+                        style = MaterialTheme.typography.headlineLarge,
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .padding(start = 16.dp, top = 8.dp),
+                        color = MaterialTheme.colorScheme.onError
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "Only ${product.stock} left",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .padding(start = 16.dp, bottom = 8.dp),
+                        color = MaterialTheme.colorScheme.onError
+                    )
+                }
+                Text(
+                    text = "${product.percentageOff}% off",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onError,
+                    modifier = Modifier
+                        .padding(end = 16.dp, top = 8.dp)
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.End
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            PagerIndicator(
+                pageCount = 1,
+                currentPage = pagerState.currentPage,
+                modifier = Modifier.fillMaxWidth()
             )
-        }
-        Spacer(Modifier.height(16.dp))
-        PagerIndicator(
-            pageCount = product.images.size,
-            currentPage = pagerState.currentPage,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(Modifier.height(16.dp))
-        Text(
-            product.title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        )
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = "Product Details",
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        )
-        Text(
-            text = "Description: ${product.description}",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        )
-        Text(
-            text = "Dimension: ${product.dimensions.depth} x ${product.dimensions.height} x ${product.dimensions.width}",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        )
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = "Delivery and Returns info",
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        )
-        Text(
-            text = "Shipping Information: ${product.shippingInformation}",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        )
-        Text(
-            text = "Return Policy: ${product.returnPolicy}",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            if (product.stock > 0) "In Stock" else "Out of Stock",
-            color = if (product.stock > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        )
-        Spacer(Modifier.weight(1F))
-        Button(
-            onClick = onAddToCart,
-            enabled = product.stock > 0,
-            modifier = Modifier
-                .padding(24.dp)
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("Add to Cart")
-            Spacer(Modifier.width(24.dp))
-            Icon(
-                painter = painterResource(R.drawable.ic_add_shopping_cart),
-                contentDescription = null
+            Spacer(Modifier.height(16.dp))
+            Text(
+                product.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 24.dp)
             )
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = "Product Details",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = W700),
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
+            Text(
+                text = "Description: ${product.description}",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
+            Text(
+                text = "Dimension: ${product.dimensions.width} x ${product.dimensions.height} x ${product.dimensions.length}",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = "Delivery and Returns info",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = W700),
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
+            Text(
+                text = "Shipping Information: ${product.shippingInformation}",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
+            Text(
+                text = "Return Policy: ${product.returnPolicy}",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                if (product.stock > 0) "In Stock" else "Out of Stock",
+                color = if (product.stock > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
+            Spacer(Modifier.weight(1F))
+            Button(
+                onClick = onAddToCart,
+                enabled = product.stock > 0,
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Add to Cart")
+                Spacer(Modifier.width(24.dp))
+                Icon(
+                    painter = painterResource(R.drawable.ic_add_shopping_cart),
+                    contentDescription = null
+                )
+            }
         }
+
     }
 }
 

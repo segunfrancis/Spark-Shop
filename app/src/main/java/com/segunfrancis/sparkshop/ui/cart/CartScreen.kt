@@ -39,6 +39,7 @@ import com.segunfrancis.sparkshop.R
 import com.segunfrancis.sparkshop.data.local.CartItemEntity
 import com.segunfrancis.sparkshop.ui.components.SparkShopToolbar
 import com.segunfrancis.sparkshop.ui.theme.SparkShopTheme
+import java.util.Locale
 
 @Composable
 fun CartScreen(onBack: () -> Unit = {}, onCheckout: () -> Unit = {}) {
@@ -80,9 +81,10 @@ fun CartContent(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(cartItems) { item ->
+            items(items = cartItems, key = { it.cartItemId }) { item ->
                 CartListItem(
                     item = item,
+                    modifier = Modifier.animateItem(),
                     onQuantityIncrease = onQuantityIncrease,
                     onQuantityDecrease = onQuantityDecrease
                 )
@@ -100,7 +102,7 @@ fun CartContent(
                 modifier = Modifier.padding(start = 24.dp)
             )
             Text(
-                text = "$${total}",
+                text = "$${String.format(Locale.getDefault(), "%.2f", total)}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(end = 24.dp)
@@ -124,17 +126,18 @@ fun CartContent(
 @Composable
 fun CartListItem(
     item: CartItemEntity,
+    modifier: Modifier = Modifier,
     onQuantityIncrease: (Int) -> Unit,
     onQuantityDecrease: (Int) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
     ) {
         AsyncImage(
-            model = item.thumbnail,
+            model = item.image,
             contentDescription = item.title,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -159,7 +162,6 @@ fun CartListItem(
         ) {
             IconButton(
                 onClick = { onQuantityDecrease(item.cartItemId) },
-                enabled = item.quantity > 1,
                 modifier = Modifier.size(32.dp)
             ) {
                 Icon(
@@ -174,6 +176,7 @@ fun CartListItem(
             )
             IconButton(
                 onClick = { onQuantityIncrease(item.cartItemId) },
+                enabled = item.quantity < item.stock,
                 modifier = Modifier.size(32.dp)
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Increase")
