@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,13 +51,14 @@ import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
-fun HomeScreen(onCartClick: () -> Unit, onProductClick: (Product) -> Unit) {
+fun HomeScreen(title: String?, onCartClick: () -> Unit, onProductClick: (Product) -> Unit) {
     val context = LocalContext.current
     val viewModel = hiltViewModel<HomeViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val cartItemCount by viewModel.cartItemCount.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     HomeContent(
+        title = title,
         uiState = uiState,
         cartItemCount = cartItemCount,
         onCartClick = onCartClick,
@@ -82,6 +84,7 @@ fun HomeScreen(onCartClick: () -> Unit, onProductClick: (Product) -> Unit) {
 @Composable
 @Preview
 fun HomeContent(
+    title: String? = null,
     uiState: HomeUi = HomeUi(),
     cartItemCount: Int = 1,
     onCartClick: () -> Unit = {},
@@ -94,8 +97,11 @@ fun HomeContent(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
+        val greeting = title?.let { name ->
+            "Hello, $name"
+        } ?: stringResource(R.string.app_name)
         SparkShopToolbar(
-            title = "Spark Shop",
+            title = greeting,
             actionIcon = R.drawable.ic_shopping_cart,
             onActionIconClick = { onCartClick() },
             cartItemCount = cartItemCount

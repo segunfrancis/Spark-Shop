@@ -1,6 +1,9 @@
 package com.segunfrancis.sparkshop.data
 
 import android.content.Context
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.segunfrancis.sparkshop.data.local.CartDao
 import com.segunfrancis.sparkshop.data.local.ProductDao
 import com.segunfrancis.sparkshop.data.local.SparkShopDatabase
@@ -78,5 +81,11 @@ object SparkShopModule {
     @Singleton
     fun provideCartDao(@ApplicationContext context: Context): CartDao {
         return SparkShopDatabase.getDatabase(context).cartDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth {
+        return Firebase.auth
     }
 }
