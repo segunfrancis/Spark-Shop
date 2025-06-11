@@ -16,7 +16,7 @@ class CheckoutViewModel @Inject constructor(private val repository: CartReposito
 
     val total = repository.getAllCartItems()
         .catch { }
-        .map { items -> items.sumOf { it.price } }
+        .map { items -> items.sumOf { it.price * it.quantity } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0.0)
 
     fun clearCart() {
