@@ -1,5 +1,6 @@
 package com.segunfrancis.sparkshop.ui.cart
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,25 +49,6 @@ fun CartScreen(onBack: () -> Unit = {}, onCheckout: () -> Unit = {}) {
     val viewModel = hiltViewModel<CartViewModel>()
     val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
 
-    CartContent(
-        cartItems = cartItems,
-        total = cartItems.sumOf { it.price * it.quantity },
-        onBack = onBack,
-        onQuantityDecrease = { viewModel.decreaseQuantity(it) },
-        onQuantityIncrease = { viewModel.increaseQuantity(it) },
-        onCheckout = onCheckout
-    )
-}
-
-@Composable
-fun CartContent(
-    cartItems: List<CartItemEntity>,
-    total: Double,
-    onBack: () -> Unit = {},
-    onQuantityIncrease: (Int) -> Unit,
-    onQuantityDecrease: (Int) -> Unit,
-    onCheckout: () -> Unit = {}
-) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,6 +59,33 @@ fun CartContent(
             navIcon = R.drawable.ic_chevron_left,
             onNavIconClick = onBack
         )
+        if (cartItems.isEmpty()) {
+            CartEmptyContent()
+        } else {
+            CartContent(
+                cartItems = cartItems,
+                total = cartItems.sumOf { it.price * it.quantity },
+                onQuantityDecrease = { viewModel.decreaseQuantity(it) },
+                onQuantityIncrease = { viewModel.increaseQuantity(it) },
+                onCheckout = onCheckout
+            )
+        }
+    }
+}
+
+@Composable
+fun CartContent(
+    cartItems: List<CartItemEntity>,
+    total: Double,
+    onQuantityIncrease: (Int) -> Unit,
+    onQuantityDecrease: (Int) -> Unit,
+    onCheckout: () -> Unit = {}
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
         Spacer(Modifier.height(14.dp))
         LazyColumn(
             modifier = Modifier.weight(1f),
@@ -120,6 +130,29 @@ fun CartContent(
         ) {
             Text("Checkout", style = MaterialTheme.typography.labelLarge)
         }
+    }
+}
+
+@Preview
+@Composable
+fun CartEmptyContent() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painter = painterResource(R.drawable.il_vecteezy_empty_state_cart),
+            contentDescription = null
+        )
+        Spacer(Modifier.height(24.dp))
+        Text(
+            text = "Your cart is empty",
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
